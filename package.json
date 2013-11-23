@@ -1,0 +1,31 @@
+{
+	"name": "aws4node",
+	"version": "0.0.1",
+	"author": "James Brown",
+	"description": "Repository with multiple code examples of using Node.js to interface with Amazon AWS",
+	"contributors": [
+		{
+			"name": "James Brown",
+			"email": "j@mesbrown.com"
+		}
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/ibjhb/aws4node.git"
+	},
+	"private": false,
+	"dependencies": {
+		"grunt": "0.4.0",
+		"grunt-contrib-jshint": "~0.3.0",
+		"grunt-contrib-watch": "~0.3.1",
+		"aws-sdk": "latest",
+		"underscore": "~1.4.4",
+		"sinon": "~1.6.0",
+		"should": "~1.2.2"
+	},
+	"engine": "node >= 0.10.22",
+	"scripts": {
+		"start": "node app",
+		"dev": "nodemon dignitas.js"
+	}
+}
