@@ -1,0 +1,7 @@
+# Files / Paths for nodemon to ignore
+/client/*
+/.idea/*
+/atlassian-ide-plugin.xml
+/.git/*
+/.sass-cache/*
+/cdn/*
