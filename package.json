@@ -24,6 +24,7 @@
 		"grunt-contrib-qunit": "~0.3.0",
 		"aws-sdk": "latest",
 		"underscore": "~1.4.4",
+		"node-uuid": ">= 1.4.1",
 		"sinon": "~1.6.0",
 		"should": "~1.2.2"
 	},
