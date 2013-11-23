@@ -1,69 +1,128 @@
 module.exports = function(grunt) {
 
+	var nodemonIgnoreFiles = [
+		'test/**'
+		,'README.md'
+		,'node_modules/**'
+		,'client/**'
+		,'*.spec.js'
+		,'logs/**'
+		,'.idea/**'
+		,'atlassian-ide-plugin.xml'
+	];
+
+	grunt.registerTask('server', 'Start a custom web server', function(){
+		require('./app.js');
+	});
+
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json')
 		,jshint: {
 			files: [
-				'Gruntfile.js'
+				'gruntfile.js'
 				,'cli/**/*.js'
 				,'test/**/*.js'
 				,'!node_modules/**/*.*'
 			]
-			,options: {
-				// options here to override JSHint defaults
-				globals: {
-					module : true
-					,require : true
-					,define : true
-					,io		: true
-					,google	: true
-					// Testing
-					,QUnit : true
-					// Pavlov
-					,before : true
-					,after : true
-					,it : true
-					,assert : true
-					,describe : true
-					,sut : true
-					,pavlov : true
-					,sinon : true
-				}
-				,laxcomma : true
-				,eqeqeq : true
-				,trailing : true
-				,curly : true
-				,newcap : true
-				,quotmark : 'single'
-				,undef : true
-				,unused : true
-				// Exposes jQuery globals
-				,jquery : true
-				// Allows 'document' and 'window' globals
-				,browser : true
-				// Allows alert & console
-				,devel : true
-				,sub : true
-			}
-		}
-		,qunit: {
-			//files : ['test/client/index.html']
-			all:{
-				options:{
-					urls: [
-						'http://dignitas:3333/_test/'
-					]
-				}
+			, options: {
+				jshintrc: '.jshintrc'
 			}
 		}
 		,watch: {
-			// Run everything
-			files: ['<%= jshint.files %>','client/_src/scss/**/*.scss', 'client/_src/templates/**/*.handlebars', 'client/_src/html/**/*.html']
-			,tasks: ['jshint', 'qunit', 'compass', 'requirejs', 'handlebars', 'copy']
+			all :{
+				// Run everything
+				files: ['cli/**/*.js']
+				,tasks: ['jshint', 'simplemocha']
 
-			// Watch Options
-			,options: {
-				interrupt: true		// If a file is updated during a build, stop and restart the process
+				// Watch Options
+				,options: {
+					interrupt: true		// If a file is updated during a build, stop and restart the process
+				}
+			}
+
+			,mocha : {
+				// Run everything
+				files: ['<%= jshint.files %>', 'test/**/*.spec.js']
+				,tasks: ['jshint', 'simplemocha']
+
+				// Watch Options
+				,options: {
+					interrupt: true		// If a file is updated during a build, stop and restart the process
+				}
+			}
+
+			,jshint : {
+				// Run everything
+				files: ['<%= jshint.files %>']
+				,tasks: ['jshint']
+
+				// Watch Options
+				,options: {
+					interrupt: true		// If a file is updated during a build, stop and restart the process
+				}
+			}
+		}
+		,nodemon : {
+			dev: {
+				options : {
+					file : 'app.js'
+					,ignoredFiles : nodemonIgnoreFiles
+					,delayTime : 5
+					,debug : true
+					,env : {
+						PORT : '3030'
+						,ACCOUNT : 'dev'
+					}
+					,nodeArgs : ['--debug']
+				}
+			}
+			,nodeInspector : {
+				options : {
+					file : 'node-inspector.js'
+					,watchedExtensions : [
+						'js'
+					]
+					,exec : 'node-inspector --web-port 8081'
+				}
+			}
+		}
+		,concurrent : {
+			target : {
+				tasks : [
+					//	'nodemon:nodeInspector'
+					'nodemon:dev'
+					,'watch:all'
+				]
+				,options : {
+					logConcurrentOutput : true
+				}
+			}
+		}
+
+		,simplemocha: {
+			options: {
+				globals: [
+					'sinon',
+					'chai',
+					'should',
+					'expect',
+					'assert',
+					'AssertionError'
+				],
+				timeout: 3000,
+				ignoreLeaks: false,
+				// grep: '*.spec',
+				ui: 'bdd',
+				reporter: 'spec'
+			},
+			backend: {
+				src: [
+					// add chai and sinon globally
+					//'test/backend/support/globals.js',
+
+					// tests
+					'test/**/*.spec.js'
+				]
 			}
 		}
 	});
@@ -71,9 +130,12 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-qunit');
 	grunt.loadNpmTasks('grunt-contrib-watch');
+	grunt.loadNpmTasks('grunt-nodemon');
+	grunt.loadNpmTasks('grunt-concurrent');
+	grunt.loadNpmTasks('grunt-simple-mocha');
 
-	grunt.registerTask('test', ['jshint', 'qunit']);
-	grunt.registerTask('dev', ['jshint', 'qunit']);
-	grunt.registerTask('default', ['jshint', 'qunit']);
+	grunt.registerTask('test', ['jshint', 'simplemocha']);
+	grunt.registerTask('dev', ['concurrent:target']);
+	grunt.registerTask('default', ['jshint', 'simplemocha', 'concurrent:target']);
 };
 
