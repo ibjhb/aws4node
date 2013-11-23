@@ -32,8 +32,6 @@ s3.createBucket({
 		throw err;
 	}
 
-	console.log('------- data : ', data);
-
 	var params = {Bucket: data.Location, Key: 'aws4node-object-' + uuid.v4(), Body: 'Hello world! ' + uuid.v4()};
 	s3.putObject(params, function(err, data) {
 		if (err) {
